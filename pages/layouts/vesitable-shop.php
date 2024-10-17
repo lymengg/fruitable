@@ -9,8 +9,7 @@
                     <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
                     <div class="p-4 rounded-bottom">
                         <h4>Parsely</h4>
-                        <p>slightly peppery leafy herb.
-                        </p>
+                        <p>slightly peppery leafy herb.</p>
                         <div class="d-flex justify-content-between flex-lg-wrap">
                             <p class="text-dark fs-5 fw-bold mb-0">$4.99 / kg</p>
                             <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>

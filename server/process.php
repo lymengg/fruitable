@@ -31,12 +31,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->num_rows > 0) {
             $stmt->bind_result($user_id, $hash_password_from_db);
             $stmt->fetch();
+            $stmt->close();
 
             // Verify the password
             if (password_verify($password, $hash_password_from_db)) {
+
                 $_SESSION['user_id'] = $user_id;
                 $_SESSION['logged_in'] = true;
+
+                $stmt = $mydb->prepare("SELECT role.role_name FROM role INNER JOIN user_role ON role.role_id = user_role.role_id WHERE user_role.user_unique_id = ?");
+                $stmt->bind_param("s", $_SESSION['user_id']);
+                $stmt->execute();
+                $stmt->store_result();
+
                 $response = array();
+
+                if ($stmt->num_rows > 0) {
+                    $stmt->bind_result($user_roles);
+                    $stmt->fetch();
+                    $stmt->close();
+                    $_SESSION['roles'] = array($user_roles);
+                }
 
                 if ($redirect_url != '') {
                     $response['redirect_url'] = $redirect_url;
@@ -149,6 +164,54 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             }
             exit();
+        } else {
+            $response = array();
+            $response['success'] = false;
+            $response['redirect_url'] = '/fruitable/login.php?redirect_url=index.php';
+            echo json_encode($response);
+            exit();
+        }
+    } else if ($form_name == "create_product_form") {
+
+        if (isset($_SESSION['user_id']) && isset($_SESSION['logged_in'])) {
+            if (isset($_FILES['product_image'])) {
+                $file_name = $_FILES['product_image']['name'];
+                $file_tmp = $_FILES['product_image']['tmp_name'];
+                $file_size = $_FILES['product_image']['size'];
+
+                if ($_FILES['product_image']['error'] === 0) {
+                    $product_name = $_POST['product_name'];
+                    $description = $_POST['description'];
+                    $price = $_POST['price'];
+                    $category_id = $_POST['category_id'];
+                    $file_data = file_get_contents($file_tmp);
+                    $file_type = mime_content_type($file_tmp);
+
+                    $error_message = "";
+
+                    if (empty($product_name) || empty($price) || empty($category_id)) {
+                        $error_message = "All fields are required, except description";
+                        echo $error_message;
+                        exit;
+                    }
+
+                    $stmt = $mydb->prepare("INSERT INTO product (product_name, description, price, file_type, category_id, image) VALUES (?, ?, ?, ?, ?, ?)");
+                    $stmt->bind_param("ssssss", $product_name, $description, $price, $file_type, $category_id, $file_data);
+                    $stmt->send_long_data(5, $file_data);
+                    if ($stmt->execute()) {
+                        $response = array();
+                        $response['success'] = true;
+                        $response['body'] = 'Success added to cart!';
+                        echo json_encode($response);
+                    } else {
+                        // Handle insert error
+                        $response = array();
+                        $response['success'] = false;
+                        $response['body'] = 'Error adding to cart: ' . $stmt->error;
+                        echo json_encode($response);
+                    }
+                }
+            }
         } else {
             $response = array();
             $response['success'] = false;

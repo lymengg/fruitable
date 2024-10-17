@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
+    <title>Register Page</title>
     <?php
     require_once('pages/layouts/style.php');
     ?>
@@ -59,7 +59,6 @@
                     <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email">
                 </div>
                 <button type="submit" class="btn btn-primary text-white w-100 mb-1">Submit</button>
-                <p class="text-center fs-6">Do not have an account? <a href="#" class="text-primary">Sign up</a></p>
                 <br>
             </div>
         </form>

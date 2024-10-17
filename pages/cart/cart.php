@@ -34,13 +34,13 @@
                         <tr>
                             <th scope="row">
                                 <div class="d-flex align-items-center">
-                                    <img src="<?= htmlspecialchars($row["file_type"]) . "" .  htmlspecialchars(base64_encode($row["image"])) ?>" class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt="">
+                                    <img src="<?= htmlspecialchars('data:' . $row["file_type"]) . ";base64," .  htmlspecialchars(base64_encode($row["image"])) ?>" class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt="">
                                 </div>
                             </th>
                             <td>
                                 <p class="mb-0 mt-4"><?= htmlspecialchars($row["product_name"]) ?></p>
                             </td>
-                            <td>
+                            <td class="product_price">
                                 <p class="mb-0 mt-4"><?= htmlspecialchars($row["price"]) ?> $</p>
                             </td>
                             <td>
@@ -58,7 +58,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>
+                            <td class="product_total_price">
                                 <p class="mb-0 mt-4">2.99 $</p>
                             </td>
                             <td>
@@ -84,12 +84,12 @@
                         <h1 class="display-6 mb-4">Cart <span class="fw-normal">Total</span></h1>
                         <div class="d-flex justify-content-between mb-4">
                             <h5 class="mb-0 me-4">Subtotal:</h5>
-                            <p class="mb-0">$96.00</p>
+                            <p class="mb-0" id="sub_total">$0.00</p>
                         </div>
                         <div class="d-flex justify-content-between">
                             <h5 class="mb-0 me-4">Shipping</h5>
                             <div class="">
-                                <p class="mb-0">Flat rate: $3.00</p>
+                                <p class="mb-0">Flat rate:$3.00</p>
                             </div>
                         </div>
                         <p class="mb-0 text-end">Shipping to Ukraine.</p>
@@ -104,3 +104,88 @@
         </div>
     </div>
 </div>
+
+<?php require_once('./pages/layouts/script.php') ?>
+<script>
+    $(document).ready(function() {
+        // $('.plusButton').on('click', function(e) {
+
+        //     const current_row = $(this).closest('tr');
+        //     const price = $row.find('.product_price').find('p').text();
+        //     const sub_total = $("#sub_total").text();
+
+        //     sub_totat.text(Number(sub_total) + Number(price))
+
+        //     $.ajax({
+        //         type: 'POST',
+        //         url: 'http://localhost:81/php-projects/fruitable/server/process.php',
+        //         data: formData,
+        //         success: function(response) {
+        //             console.log(response)
+        //         },
+        //         error: function(xhr, status, error) {
+        //             alert('An error occurred: ' + error);
+        //         }
+        //     });
+        // });
+
+
+
+        $(".quantity button").on("click", function() {
+            var button = $(this);
+            var oldValue = button.parent().parent().find("input").val();
+
+            const current_row = $(this).closest('tr');
+            const price = current_row.find('.product_price').find('p');
+            const product_total_price = current_row.find('.product_total_price').find('p');
+            const sub_total = $("#sub_total");
+
+            if (button.hasClass("btn-plus")) {
+                var newVal = parseFloat(oldValue) + 1;
+                sub_total.text(Number(sub_total.text()) + Number(price.text()))
+                const product_price_with_quantity = Number(product_total_price.text().replace(" $", "")) + Number(price.text().replace(" $", ""));
+                product_total_price.text(product_price_with_quantity + " $");
+            } else {
+                if (oldValue > 0) {
+                    var newVal = parseFloat(oldValue) - 1;
+                    sub_total.text(Number(sub_total.text()) - Number(price.text()))
+                    const product_price_with_quantity = Number(product_total_price.text().replace(" $", "")) + Number(price.text().replace(" $", ""));
+                    product_total_price.text(product_price_with_quantity + " $");
+                } else {
+                    newVal = 0;
+                }
+            }
+
+            button.parent().parent().find("input").val(newVal);
+        });
+    });
+
+    const addToCart = (productId) => {
+        $.ajax({
+            type: 'POST',
+            url: '/fruitable/server/process.php',
+            data: {
+                form_name: 'add_to_cart_form',
+                product_id: productId
+            },
+            success: function(response) {
+                const jsonResponse = JSON.parse(response);
+                if (jsonResponse.success === false) {
+
+                    if (jsonResponse.redirect_url) {
+                        window.location.href = jsonResponse.redirect_url;
+                    }
+
+                    if (jsonResponse.body) {
+                        toastr['error'](jsonResponse.body)
+                    }
+                } else {
+                    toastr['success'](jsonResponse.body)
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('An error occurred: ' + error);
+            }
+        });
+    }
+</script>
