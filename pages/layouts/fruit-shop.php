@@ -237,7 +237,7 @@
                 e.preventDefault();
 
                 const formData = $(this).serialize();
-                console.log(formData)
+
                 $.ajax({
                     type: 'POST',
                     url: 'http://localhost:81/php-projects/fruitable/server/process.php',

@@ -219,5 +219,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo json_encode($response);
             exit();
         }
+    } else if ($form_name == 'remove_from_cart') {
+
+        if (isset($_SESSION['user_id']) && isset($_SESSION['logged_in'])) {
+            $product_id = $_POST['product_id'];
+
+            $stmt = $mydb->prepare("SELECT COUNT(*) FROM cart WHERE product_id = ? AND user_unique_id = ?");
+            $stmt->bind_param("ss", $product_id, $_SESSION['user_id']);
+
+            $stmt->execute();
+            $stmt->bind_result($count);
+            $stmt->fetch();
+            $stmt->close();
+            if ($count == 0) {
+                $response = array();
+                $response['success'] = false;
+                $response['body'] = 'Item not exist!';
+                echo json_encode($response);
+            } else {
+
+                $stmt = $mydb->prepare("DELETE FROM cart WHERE user_unique_id = ? AND product_id = ?");
+                $stmt->bind_param("ss", $_SESSION['user_id'],  $product_id,);
+
+                if ($stmt->execute()) {
+                    $response = array();
+                    $response['success'] = true;
+                    $response['body'] = 'Success remove from cart!';
+                    echo json_encode($response);
+                } else {
+                    // Handle insert error
+                    $response = array();
+                    $response['success'] = false;
+                    $response['body'] = 'Error while remove from cart: ' . $stmt->error;
+                    echo json_encode($response);
+                }
+            }
+            exit();
+        }
     }
 }
