@@ -32,8 +32,7 @@
                     <div class="navbar-nav mx-auto">
                         <a href="index.php" class="nav-item nav-link">Home</a>
                         <a href="shop.php" class="nav-item nav-link">Shop</a>
-                        <a href="shop-detail.php" class="nav-item nav-link">Shop Detail</a>
-                        <div class="nav-item dropdown">
+                        <!-- <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                             <div class="dropdown-menu m-0 bg-secondary rounded-0">
                                 <a href="cart.php" class="dropdown-item">Cart</a>
@@ -41,7 +40,7 @@
                                 <a href="testimonial.php" class="dropdown-item">Testimonial</a>
                                 <a href="404.php" class="dropdown-item">404 Page</a>
                             </div>
-                        </div>
+                        </div> -->
                         <a href="contact.php" class="nav-item nav-link">Contact</a>
                         <?php
                         if (!empty($_SESSION['logged_in']) || !empty($_SESSION['roles'])) {
